@@ -1,17 +1,19 @@
 import styles from './Button.module.css'
 import prop from 'prop-types'
+import clsx from 'clsx'
 
-function Button({text, onClick}) {
+function Button({ className, value, onClick}) {
   return (
-    <div>
-      <button className={styles.button} onClick={onClick}>{text}</button>
-    </div>
+      <button className={clsx(styles.button, className)} onClick={onClick}>
+        {value}
+      </button>
   )
 }
 
 export default Button
 
 Button.propTypes = {
-  text: prop.string,
-  onClick: prop.func
+  className: prop.string,
+  value: prop.oneOfType([prop.string, prop.number]).isRequired,
+  onClick: prop.func.isRequired
 }
