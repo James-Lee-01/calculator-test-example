@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import Wrapper from './components/wrapper/Wrapper'
 import Screen from './components/screen/Screen'
@@ -27,11 +27,8 @@ function App() {
     res: 0
   })
 
-  const numClickHandler = (e) => {
-    e.preventDefault()
-    const value = e.target.innerHTML
-
-    if (removeSpaces(calc.num).length < 16) {
+  const numClickHandler = (value) => {
+    if (removeSpaces(calc.num).length < 14) {
       setCalc({
         ...calc,
         num:
@@ -45,9 +42,8 @@ function App() {
     }
   }
 
-  const commaClickHandler = (e) => {
-    e.preventDefault()
-    const value = e.target.innerHTML
+  const commaClickHandler = () => {
+    const value = "."
 
     setCalc({
       ...calc,
@@ -55,10 +51,7 @@ function App() {
     })
   }
 
-  const signClickHandler = (e) => {
-    e.preventDefault()
-    const value = e.target.innerHTML
-
+  const signClickHandler = (value) => {
     setCalc({
       ...calc,
       sign: value,
@@ -126,6 +119,33 @@ function App() {
     })
   }
 
+  const handleKeyDown = (e) => {
+    const key = e.key;
+    if (key >= 0 && key <= 9) {
+      numClickHandler(key);
+    } else if (key === ".") {
+      commaClickHandler();
+    } else if (key === "+" || key === "-" || key === "*" || key === "/") {
+      const sign = key === "*" ? "X" : key;
+      signClickHandler(sign);
+    } else if (key === "Enter" || key === "=") {
+      equalsClickHandler();
+    } else if (key === "%") {
+      percentClickHandler();
+    } else if (key === "Backspace" || key === "Escape") {
+      resetClickHandler();
+    } else if (key === "±") {
+      invertClickHandler();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [calc]);
+
   return (
     <>
       <div>
@@ -139,14 +159,13 @@ function App() {
         <Wrapper>
           <Screen value={calc.num ? calc.num : calc.res} />
           <ButtonWrapper>
-            {
-              buttonValues.flat().map((btn, index) => (
-                <Button
-                  key={index}
-                  className={btn === "=" ? styles.equals : ""}
-                  value={btn}
-                  onClick={
-                    btn === "AC"
+            {buttonValues.flat().map((btn, index) => (
+              <Button
+                key={index}
+                className={btn === "=" ? styles.equals : ""}
+                value={btn}
+                onClick={
+                  btn === "AC"
                     ? resetClickHandler
                     : btn === "+/-"
                     ? invertClickHandler
@@ -158,11 +177,10 @@ function App() {
                     ? signClickHandler
                     : btn === "."
                     ? commaClickHandler
-                    : numClickHandler
-                  }
-                />
-              ))
-            }
+                    : () => numClickHandler(btn)
+                }
+              />
+            ))}
           </ButtonWrapper>
         </Wrapper>
       </div>
