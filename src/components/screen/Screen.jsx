@@ -13,5 +13,8 @@ const Screen = ({ value }) => {
 export default Screen
 
 Screen.propTypes = {
-  value: props.number
+  value: props.oneOfType([
+    props.string,
+    props.number
+  ])
 }
